@@ -27,7 +27,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 ASSETS = os.path.join(ROOT, "assets")
 
 FPS = 24.0
-START, END = 1.0, 312.0          # 13 seconds — pick-and-place, then flip to side B
+START, END = 1.0, 480.0          # 20 seconds — a full cycle that returns to the start (loops)
 
 # Placement of the main pieces (world space). Shared intent with choreograph.py.
 ARM_POS = Gf.Vec3d(-0.12, 0.0, -0.42)
