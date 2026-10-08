@@ -10,16 +10,19 @@ assembled stage the arm is referenced at `/Cell/Arm`, so prepend the right prefi
 from __future__ import annotations
 
 # (name, subpath-under-arm-root, rotation axis)
+#   wrist (X) is a pitch used to keep the gripper level; roll (Z) spins the claw
+#   about the reach axis — that's what flips the record side-to-side.
 JOINTS = [
-    ("yaw",      "Base/Yoke",                               "Y"),
-    ("shoulder", "Base/Yoke/UpperArm",                      "X"),
-    ("elbow",    "Base/Yoke/UpperArm/Forearm",              "X"),
-    ("wrist",    "Base/Yoke/UpperArm/Forearm/Gripper",      "X"),
+    ("yaw",      "Base/Yoke",                                    "Y"),
+    ("shoulder", "Base/Yoke/UpperArm",                           "X"),
+    ("elbow",    "Base/Yoke/UpperArm/Forearm",                   "X"),
+    ("wrist",    "Base/Yoke/UpperArm/Forearm/Gripper",           "X"),
+    ("roll",     "Base/Yoke/UpperArm/Forearm/Gripper/Roll",      "Z"),
 ]
 
-# A frame between the gripper fingers — we read its world transform to attach the
-# record during the grasp handoff.
-GRASP_SUBPATH = "Base/Yoke/UpperArm/Forearm/Gripper/GraspPoint"
+# A frame at the pinch point between the claws — we read its world transform to
+# attach the record during the grasp handoff.
+GRASP_SUBPATH = "Base/Yoke/UpperArm/Forearm/Gripper/Roll/GraspPoint"
 
 # Link dimensions (meters), shared so geometry and reach stay consistent.
 POST_HEIGHT = 0.30

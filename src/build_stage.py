@@ -27,7 +27,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 ASSETS = os.path.join(ROOT, "assets")
 
 FPS = 24.0
-START, END = 1.0, 168.0          # 7 seconds — room for the full pick-and-place
+START, END = 1.0, 312.0          # 13 seconds — pick-and-place, then flip to side B
 
 # Placement of the main pieces (world space). Shared intent with choreograph.py.
 ARM_POS = Gf.Vec3d(-0.12, 0.0, -0.42)
@@ -70,6 +70,8 @@ def build(stage_path: str) -> None:
     # same xformOp:transform to move it crate -> gripper -> platter.
     m = Gf.Matrix4d().SetTranslate(CRATE_PICK)
     UsdGeom.Xformable(rec).AddTransformOp().Set(m)
+    # The stage chooses which album this record is (variant selection per instance).
+    rec.GetPrim().GetVariantSet("album").SetVariantSelection("Classic")
 
     # --- lighting ----------------------------------------------------------
     h.add_xform(stage, "/Cell/Lights")

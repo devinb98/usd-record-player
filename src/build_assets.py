@@ -60,6 +60,20 @@ def build_turntable(path: str) -> None:
     print("wrote", path)
 
 
+# Album looks for the record's variant set: (side-A label, side-B label) colors.
+ALBUMS = {
+    "Classic": ((0.75, 0.18, 0.12), (0.90, 0.85, 0.70)),   # red  / cream
+    "Jazz":    ((0.10, 0.50, 0.50), (0.85, 0.65, 0.10)),   # teal / gold
+    "Night":   ((0.35, 0.20, 0.55), (0.70, 0.72, 0.75)),   # purple / silver
+}
+
+
+def _set_label_color(stage, mat_path, color) -> None:
+    """Override a UsdPreviewSurface's diffuseColor (used inside a variant)."""
+    shader = stage.GetPrimAtPath(mat_path + "/Preview")
+    shader.GetAttribute("inputs:diffuseColor").Set(Gf.Vec3f(*color))
+
+
 def build_record(path: str) -> None:
     stage = Usd.Stage.CreateNew(path)
     h.configure_stage(stage)
@@ -68,15 +82,39 @@ def build_record(path: str) -> None:
     h.mark_kind(root.GetPrim(), "component")
     h.set_default_prim(stage, root.GetPrim())
 
-    # Vinyl: a thin black glossy disc (low roughness = shiny).
-    h.add_disc(stage, "/Record/Vinyl", radius=0.145, height=0.004,
+    # Vinyl: a thin black glossy disc, thick enough to separate the two faces.
+    h.add_disc(stage, "/Record/Vinyl", radius=0.145, height=0.006,
                color=(0.02, 0.02, 0.02), roughness=0.15)
-    # Label: a smaller matte colored disc, sitting just on top of the vinyl.
-    h.add_disc(stage, "/Record/Label", radius=0.05, height=0.0045,
-               translate=(0, 0.0003, 0), color=(0.75, 0.18, 0.12), roughness=0.8)
-    # A small off-center marker so the (otherwise symmetric) spin is visible.
-    h.add_box(stage, "/Record/Marker", size=(0.012, 0.004, 0.012),
+    # Two labels — side A on the top face (+Y), side B on the bottom (-Y) — so the
+    # flip visibly swaps which face is up. Colors are set by the variant set below.
+    h.add_disc(stage, "/Record/LabelA", radius=0.05, height=0.001,
+               translate=(0, 0.0035, 0), color=ALBUMS["Classic"][0], roughness=0.8)
+    h.add_disc(stage, "/Record/LabelB", radius=0.05, height=0.001,
+               translate=(0, -0.0035, 0), color=ALBUMS["Classic"][1], roughness=0.8)
+    # An off-center marker on each face so the spin reads whichever side is up.
+    h.add_box(stage, "/Record/MarkerA", size=(0.012, 0.004, 0.012),
               translate=(0.085, 0.004, 0), color=(0.95, 0.9, 0.3), roughness=0.5)
+    h.add_box(stage, "/Record/MarkerB", size=(0.012, 0.004, 0.012),
+              translate=(0.085, -0.004, 0), color=(0.3, 0.85, 0.9), roughness=0.5)
+
+    # --- variant set: "album" swaps the label colors --------------------------
+    # A variant set is a named switch; each variant authors a different set of
+    # opinions (here, the two label colors). The stage can select per-record.
+    #
+    # LIVRPS gotcha: add_disc already authored a *local* diffuseColor, and Local
+    # beats Variant in strength ordering — so a variant opinion would be masked.
+    # Clear the local color first so the variants are the only opinions.
+    for mp in ("/Record/LabelA_mat", "/Record/LabelB_mat"):
+        stage.GetPrimAtPath(mp + "/Preview").GetAttribute("inputs:diffuseColor").Clear()
+
+    vset = root.GetPrim().GetVariantSets().AddVariantSet("album")
+    for name, (ca, cb) in ALBUMS.items():
+        vset.AddVariant(name)
+        vset.SetVariantSelection(name)
+        with vset.GetVariantEditContext():     # edits here land *inside* this variant
+            _set_label_color(stage, "/Record/LabelA_mat", ca)
+            _set_label_color(stage, "/Record/LabelB_mat", cb)
+    vset.SetVariantSelection("Classic")        # default selection
 
     stage.GetRootLayer().Save()
     print("wrote", path)
@@ -135,17 +173,26 @@ def build_arm(path: str) -> None:
               translate=(0, 0, spec.FOREARM_LEN / 2),
               color=(0.75, 0.75, 0.78), roughness=0.35)
 
-    # J3 wrist (X) — Gripper at the end of the forearm, fingers pointing down (-Y).
+    # J3 wrist (X) — a pitch used to keep the gripper level. The gripper reaches +Z.
     gpath = "/Arm/Base/Yoke/UpperArm/Forearm/Gripper"
     _joint_link(stage, gpath, translate=(0, 0, spec.FOREARM_LEN), axis="X", mass=0.6)
-    h.add_box(stage, gpath + "/Bracket", size=(0.07, 0.03, 0.07),
-              translate=(0, -0.015, 0), color=(0.2, 0.2, 0.22), roughness=0.4)
-    for i, zoff in enumerate((-0.045, 0.045)):
-        h.add_box(stage, f"{gpath}/Finger{i}", size=(0.012, 0.07, 0.02),
-                  translate=(0, -0.05, zoff), color=(0.15, 0.15, 0.16), roughness=0.4)
-    # Grasp frame between the fingers (no geometry) — choreograph reads its world xform.
-    gp = h.add_xform(stage, gpath + "/GraspPoint")
-    h.set_translate(gp, (0, -0.075, 0))
+    h.add_box(stage, gpath + "/Housing", size=(0.05, 0.045, 0.045),
+              translate=(0, 0, 0.01), color=(0.2, 0.2, 0.22), roughness=0.4)
+
+    # J4 roll (Z) — spins the claw about the reach axis; this is what flips the record
+    # side-to-side. The claws + grasp point ride on the roll so they turn with it.
+    rpath = gpath + "/Roll"
+    _joint_link(stage, rpath, translate=(0, 0, 0.03), axis="Z", mass=0.3)
+    # Two claws straddling the record's RIM (separated along X), reaching +Z so the
+    # thin edge of the disc sits in the gap between them.
+    for i, xoff in enumerate((-0.032, 0.032)):
+        h.add_box(stage, f"{rpath}/Claw{i}", size=(0.014, 0.03, 0.06),
+                  translate=(xoff, 0, 0.03), color=(0.15, 0.15, 0.16), roughness=0.4)
+    h.add_box(stage, rpath + "/Bracket", size=(0.085, 0.025, 0.02),
+              translate=(0, 0, 0.005), color=(0.15, 0.15, 0.16), roughness=0.4)
+    # Pinch point between the claws (no geometry) — choreograph reads its world xform.
+    gp = h.add_xform(stage, rpath + "/GraspPoint")
+    h.set_translate(gp, (0, 0, 0.03))
 
     # --- physics joints connecting the links ------------------------------
     J = "/Arm/Joints"
@@ -168,6 +215,9 @@ def build_arm(path: str) -> None:
     phys.add_revolute_joint(stage, J + "/J3_wrist", body0=b_fa, body1=b_gr,
                             axis="X", local_pos0=(0, 0, spec.FOREARM_LEN),
                             lower=-150, upper=150)
+    phys.add_revolute_joint(stage, J + "/J4_roll", body0=b_gr, body1=gpath + "/Roll",
+                            axis="Z", local_pos0=(0, 0, 0.03),
+                            lower=-200, upper=200)
 
     stage.GetRootLayer().Save()
     print("wrote", path)

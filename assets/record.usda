@@ -11,6 +11,10 @@
 
 def Xform "Record" (
     kind = "component"
+    variants = {
+        string album = "Classic"
+    }
+    prepend variantSets = "album"
 )
 {
     def Cylinder "Vinyl" (
@@ -18,8 +22,8 @@ def Xform "Record" (
     )
     {
         uniform token axis = "Y"
-        float3[] extent = [(-0.145, -0.002, -0.145), (0.145, 0.002, 0.145)]
-        double height = 0.004
+        float3[] extent = [(-0.145, -0.003, -0.145), (0.145, 0.003, 0.145)]
+        double height = 0.006
         rel material:binding = </Record/Vinyl_mat>
         double radius = 0.145
     }
@@ -38,48 +42,75 @@ def Xform "Record" (
         }
     }
 
-    def Cylinder "Label" (
+    def Cylinder "LabelA" (
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
         uniform token axis = "Y"
-        float3[] extent = [(-0.05, -0.00225, -0.05), (0.05, 0.00225, 0.05)]
-        double height = 0.0045
-        rel material:binding = </Record/Label_mat>
+        float3[] extent = [(-0.05, -0.0005, -0.05), (0.05, 0.0005, 0.05)]
+        double height = 0.001
+        rel material:binding = </Record/LabelA_mat>
         double radius = 0.05
-        double3 xformOp:translate = (0, 0.0003, 0)
+        double3 xformOp:translate = (0, 0.0035, 0)
         uniform token[] xformOpOrder = ["xformOp:translate"]
     }
 
-    def Material "Label_mat"
+    def Material "LabelA_mat"
     {
-        token outputs:surface.connect = </Record/Label_mat/Preview.outputs:surface>
+        token outputs:surface.connect = </Record/LabelA_mat/Preview.outputs:surface>
 
         def Shader "Preview"
         {
             uniform token info:id = "UsdPreviewSurface"
-            color3f inputs:diffuseColor = (0.75, 0.18, 0.12)
+            color3f inputs:diffuseColor
             float inputs:metallic = 0
             float inputs:roughness = 0.8
             token outputs:surface
         }
     }
 
-    def Cube "Marker" (
+    def Cylinder "LabelB" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        uniform token axis = "Y"
+        float3[] extent = [(-0.05, -0.0005, -0.05), (0.05, 0.0005, 0.05)]
+        double height = 0.001
+        rel material:binding = </Record/LabelB_mat>
+        double radius = 0.05
+        double3 xformOp:translate = (0, -0.0035, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Material "LabelB_mat"
+    {
+        token outputs:surface.connect = </Record/LabelB_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor
+            float inputs:metallic = 0
+            float inputs:roughness = 0.8
+            token outputs:surface
+        }
+    }
+
+    def Cube "MarkerA" (
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
         float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
-        rel material:binding = </Record/Marker_mat>
+        rel material:binding = </Record/MarkerA_mat>
         double size = 1
         float3 xformOp:scale = (0.012, 0.004, 0.012)
         double3 xformOp:translate = (0.085, 0.004, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
     }
 
-    def Material "Marker_mat"
+    def Material "MarkerA_mat"
     {
-        token outputs:surface.connect = </Record/Marker_mat/Preview.outputs:surface>
+        token outputs:surface.connect = </Record/MarkerA_mat/Preview.outputs:surface>
 
         def Shader "Preview"
         {
@@ -88,6 +119,88 @@ def Xform "Record" (
             float inputs:metallic = 0
             float inputs:roughness = 0.5
             token outputs:surface
+        }
+    }
+
+    def Cube "MarkerB" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+        rel material:binding = </Record/MarkerB_mat>
+        double size = 1
+        float3 xformOp:scale = (0.012, 0.004, 0.012)
+        double3 xformOp:translate = (0.085, -0.004, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Material "MarkerB_mat"
+    {
+        token outputs:surface.connect = </Record/MarkerB_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.3, 0.85, 0.9)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.5
+            token outputs:surface
+        }
+    }
+    variantSet "album" = {
+        "Classic" {
+            over "LabelA_mat"
+            {
+                over "Preview"
+                {
+                    color3f inputs:diffuseColor = (0.75, 0.18, 0.12)
+                }
+            }
+
+            over "LabelB_mat"
+            {
+                over "Preview"
+                {
+                    color3f inputs:diffuseColor = (0.9, 0.85, 0.7)
+                }
+            }
+
+        }
+        "Jazz" {
+            over "LabelA_mat"
+            {
+                over "Preview"
+                {
+                    color3f inputs:diffuseColor = (0.1, 0.5, 0.5)
+                }
+            }
+
+            over "LabelB_mat"
+            {
+                over "Preview"
+                {
+                    color3f inputs:diffuseColor = (0.85, 0.65, 0.1)
+                }
+            }
+
+        }
+        "Night" {
+            over "LabelA_mat"
+            {
+                over "Preview"
+                {
+                    color3f inputs:diffuseColor = (0.35, 0.2, 0.55)
+                }
+            }
+
+            over "LabelB_mat"
+            {
+                over "Preview"
+                {
+                    color3f inputs:diffuseColor = (0.7, 0.72, 0.75)
+                }
+            }
+
         }
     }
 }
