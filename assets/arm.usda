@@ -1,0 +1,335 @@
+#usda 1.0
+(
+    defaultPrim = "Arm"
+    endTimeCode = 1
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 1
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Xform "Arm" (
+    prepend apiSchemas = ["PhysicsArticulationRootAPI"]
+    kind = "component"
+)
+{
+    def Xform "Base" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysicsCollisionAPI"]
+    )
+    {
+        bool physics:kinematicEnabled = 1
+        float physics:mass = 8
+
+        def Cylinder "Post" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            uniform token axis = "Y"
+            float3[] extent = [(-0.045, -0.15, -0.045), (0.045, 0.15, 0.045)]
+            double height = 0.3
+            rel material:binding = </Arm/Base/Post_mat>
+            double radius = 0.045
+            double3 xformOp:translate = (0, 0.15, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Material "Post_mat"
+        {
+            token outputs:surface.connect = </Arm/Base/Post_mat/Preview.outputs:surface>
+
+            def Shader "Preview"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.2, 0.2, 0.22)
+                float inputs:metallic = 0
+                float inputs:roughness = 0.5
+                token outputs:surface
+            }
+        }
+
+        def Xform "Yoke" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysicsCollisionAPI"]
+        )
+        {
+            float physics:mass = 1.5
+            float xformOp:rotateY = 0
+            double3 xformOp:translate = (0, 0.3, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateY"]
+
+            def Cube "Geo" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </Arm/Base/Yoke/Geo_mat>
+                double size = 1
+                float3 xformOp:scale = (0.09, 0.06, 0.09)
+                double3 xformOp:translate = (0, 0.03, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Material "Geo_mat"
+            {
+                token outputs:surface.connect = </Arm/Base/Yoke/Geo_mat/Preview.outputs:surface>
+
+                def Shader "Preview"
+                {
+                    uniform token info:id = "UsdPreviewSurface"
+                    color3f inputs:diffuseColor = (0.85, 0.5, 0.1)
+                    float inputs:metallic = 0
+                    float inputs:roughness = 0.4
+                    token outputs:surface
+                }
+            }
+
+            def Xform "UpperArm" (
+                prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysicsCollisionAPI"]
+            )
+            {
+                float physics:mass = 1.2
+                float xformOp:rotateX = 0
+                double3 xformOp:translate = (0, 0.05, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX"]
+
+                def Cube "Geo" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                    rel material:binding = </Arm/Base/Yoke/UpperArm/Geo_mat>
+                    double size = 1
+                    float3 xformOp:scale = (0.05, 0.05, 0.3)
+                    double3 xformOp:translate = (0, 0, 0.15)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Material "Geo_mat"
+                {
+                    token outputs:surface.connect = </Arm/Base/Yoke/UpperArm/Geo_mat/Preview.outputs:surface>
+
+                    def Shader "Preview"
+                    {
+                        uniform token info:id = "UsdPreviewSurface"
+                        color3f inputs:diffuseColor = (0.75, 0.75, 0.78)
+                        float inputs:metallic = 0
+                        float inputs:roughness = 0.35
+                        token outputs:surface
+                    }
+                }
+
+                def Xform "Forearm" (
+                    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysicsCollisionAPI"]
+                )
+                {
+                    float physics:mass = 1
+                    float xformOp:rotateX = 0
+                    double3 xformOp:translate = (0, 0, 0.3)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX"]
+
+                    def Cube "Geo" (
+                        prepend apiSchemas = ["MaterialBindingAPI"]
+                    )
+                    {
+                        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                        rel material:binding = </Arm/Base/Yoke/UpperArm/Forearm/Geo_mat>
+                        double size = 1
+                        float3 xformOp:scale = (0.04, 0.04, 0.28)
+                        double3 xformOp:translate = (0, 0, 0.14)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    }
+
+                    def Material "Geo_mat"
+                    {
+                        token outputs:surface.connect = </Arm/Base/Yoke/UpperArm/Forearm/Geo_mat/Preview.outputs:surface>
+
+                        def Shader "Preview"
+                        {
+                            uniform token info:id = "UsdPreviewSurface"
+                            color3f inputs:diffuseColor = (0.75, 0.75, 0.78)
+                            float inputs:metallic = 0
+                            float inputs:roughness = 0.35
+                            token outputs:surface
+                        }
+                    }
+
+                    def Xform "Gripper" (
+                        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysicsCollisionAPI"]
+                    )
+                    {
+                        float physics:mass = 0.6
+                        float xformOp:rotateX = 0
+                        double3 xformOp:translate = (0, 0, 0.28)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX"]
+
+                        def Cube "Bracket" (
+                            prepend apiSchemas = ["MaterialBindingAPI"]
+                        )
+                        {
+                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                            rel material:binding = </Arm/Base/Yoke/UpperArm/Forearm/Gripper/Bracket_mat>
+                            double size = 1
+                            float3 xformOp:scale = (0.07, 0.03, 0.07)
+                            double3 xformOp:translate = (0, -0.015, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                        }
+
+                        def Material "Bracket_mat"
+                        {
+                            token outputs:surface.connect = </Arm/Base/Yoke/UpperArm/Forearm/Gripper/Bracket_mat/Preview.outputs:surface>
+
+                            def Shader "Preview"
+                            {
+                                uniform token info:id = "UsdPreviewSurface"
+                                color3f inputs:diffuseColor = (0.2, 0.2, 0.22)
+                                float inputs:metallic = 0
+                                float inputs:roughness = 0.4
+                                token outputs:surface
+                            }
+                        }
+
+                        def Cube "Finger0" (
+                            prepend apiSchemas = ["MaterialBindingAPI"]
+                        )
+                        {
+                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                            rel material:binding = </Arm/Base/Yoke/UpperArm/Forearm/Gripper/Finger0_mat>
+                            double size = 1
+                            float3 xformOp:scale = (0.012, 0.07, 0.02)
+                            double3 xformOp:translate = (0, -0.05, -0.045)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                        }
+
+                        def Material "Finger0_mat"
+                        {
+                            token outputs:surface.connect = </Arm/Base/Yoke/UpperArm/Forearm/Gripper/Finger0_mat/Preview.outputs:surface>
+
+                            def Shader "Preview"
+                            {
+                                uniform token info:id = "UsdPreviewSurface"
+                                color3f inputs:diffuseColor = (0.15, 0.15, 0.16)
+                                float inputs:metallic = 0
+                                float inputs:roughness = 0.4
+                                token outputs:surface
+                            }
+                        }
+
+                        def Cube "Finger1" (
+                            prepend apiSchemas = ["MaterialBindingAPI"]
+                        )
+                        {
+                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                            rel material:binding = </Arm/Base/Yoke/UpperArm/Forearm/Gripper/Finger1_mat>
+                            double size = 1
+                            float3 xformOp:scale = (0.012, 0.07, 0.02)
+                            double3 xformOp:translate = (0, -0.05, 0.045)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                        }
+
+                        def Material "Finger1_mat"
+                        {
+                            token outputs:surface.connect = </Arm/Base/Yoke/UpperArm/Forearm/Gripper/Finger1_mat/Preview.outputs:surface>
+
+                            def Shader "Preview"
+                            {
+                                uniform token info:id = "UsdPreviewSurface"
+                                color3f inputs:diffuseColor = (0.15, 0.15, 0.16)
+                                float inputs:metallic = 0
+                                float inputs:roughness = 0.4
+                                token outputs:surface
+                            }
+                        }
+
+                        def Xform "GraspPoint"
+                        {
+                            double3 xformOp:translate = (0, -0.075, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "Joints"
+    {
+        def PhysicsFixedJoint "BaseFix"
+        {
+            rel physics:body0 = None
+            rel physics:body1 = </Arm/Base>
+        }
+
+        def PhysicsRevoluteJoint "J0_yaw" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 200
+            float drive:angular:physics:maxForce = 1000
+            float drive:angular:physics:stiffness = 2000
+            float drive:angular:physics:targetPosition = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "Y"
+            rel physics:body0 = </Arm/Base>
+            rel physics:body1 = </Arm/Base/Yoke>
+            point3f physics:localPos0 = (0, 0.3, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            float physics:lowerLimit = -180
+            float physics:upperLimit = 180
+        }
+
+        def PhysicsRevoluteJoint "J1_shoulder" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 200
+            float drive:angular:physics:maxForce = 1000
+            float drive:angular:physics:stiffness = 2000
+            float drive:angular:physics:targetPosition = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Arm/Base/Yoke>
+            rel physics:body1 = </Arm/Base/Yoke/UpperArm>
+            point3f physics:localPos0 = (0, 0.05, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            float physics:lowerLimit = -120
+            float physics:upperLimit = 60
+        }
+
+        def PhysicsRevoluteJoint "J2_elbow" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 200
+            float drive:angular:physics:maxForce = 1000
+            float drive:angular:physics:stiffness = 2000
+            float drive:angular:physics:targetPosition = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Arm/Base/Yoke/UpperArm>
+            rel physics:body1 = </Arm/Base/Yoke/UpperArm/Forearm>
+            point3f physics:localPos0 = (0, 0, 0.3)
+            point3f physics:localPos1 = (0, 0, 0)
+            float physics:lowerLimit = -10
+            float physics:upperLimit = 150
+        }
+
+        def PhysicsRevoluteJoint "J3_wrist" (
+            prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 200
+            float drive:angular:physics:maxForce = 1000
+            float drive:angular:physics:stiffness = 2000
+            float drive:angular:physics:targetPosition = 0
+            uniform token drive:angular:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Arm/Base/Yoke/UpperArm/Forearm>
+            rel physics:body1 = </Arm/Base/Yoke/UpperArm/Forearm/Gripper>
+            point3f physics:localPos0 = (0, 0, 0.28)
+            point3f physics:localPos1 = (0, 0, 0)
+            float physics:lowerLimit = -150
+            float physics:upperLimit = 150
+        }
+    }
+}
+

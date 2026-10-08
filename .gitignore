@@ -1,0 +1,10 @@
+# Python virtualenv (recreate with: python3.11 -m venv .venv && pip install usd-core numpy Pillow)
+.venv/
+__pycache__/
+*.pyc
+
+# Rendered output (regenerate with ./build.sh)
+renders/
+
+# macOS
+.DS_Store

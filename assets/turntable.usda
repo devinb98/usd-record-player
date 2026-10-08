@@ -1,0 +1,139 @@
+#usda 1.0
+(
+    defaultPrim = "Turntable"
+    endTimeCode = 1
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 1
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Xform "Turntable" (
+    kind = "component"
+)
+{
+    def Cube "Base" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+        rel material:binding = </Turntable/Base_mat>
+        double size = 1
+        float3 xformOp:scale = (0.4, 0.05, 0.34)
+        double3 xformOp:translate = (0, 0.025, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Material "Base_mat"
+    {
+        token outputs:surface.connect = </Turntable/Base_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.05, 0.05, 0.06)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.5
+            token outputs:surface
+        }
+    }
+
+    def Xform "PlatterMount"
+    {
+        double3 xformOp:translate = (0, 0.05, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Xform "Platter"
+        {
+            def Cylinder "PlatterDisc" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Y"
+                float3[] extent = [(-0.155, -0.006, -0.155), (0.155, 0.006, 0.155)]
+                double height = 0.012
+                rel material:binding = </Turntable/PlatterMount/Platter/PlatterDisc_mat>
+                double radius = 0.155
+                double3 xformOp:translate = (0, 0.006, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+            }
+
+            def Material "PlatterDisc_mat"
+            {
+                token outputs:surface.connect = </Turntable/PlatterMount/Platter/PlatterDisc_mat/Preview.outputs:surface>
+
+                def Shader "Preview"
+                {
+                    uniform token info:id = "UsdPreviewSurface"
+                    color3f inputs:diffuseColor = (0.08, 0.08, 0.09)
+                    float inputs:metallic = 0
+                    float inputs:roughness = 0.4
+                    token outputs:surface
+                }
+            }
+        }
+    }
+
+    def Xform "TonearmBase"
+    {
+        double3 xformOp:translate = (0.135, 0.05, -0.12)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Xform "TonearmPivot"
+        {
+            def Cube "Arm" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </Turntable/TonearmBase/TonearmPivot/Arm_mat>
+                double size = 1
+                float3 xformOp:scale = (0.012, 0.012, 0.22)
+                double3 xformOp:translate = (0, 0.03, 0.1)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Material "Arm_mat"
+            {
+                token outputs:surface.connect = </Turntable/TonearmBase/TonearmPivot/Arm_mat/Preview.outputs:surface>
+
+                def Shader "Preview"
+                {
+                    uniform token info:id = "UsdPreviewSurface"
+                    color3f inputs:diffuseColor = (0.6, 0.6, 0.62)
+                    float inputs:metallic = 0
+                    float inputs:roughness = 0.3
+                    token outputs:surface
+                }
+            }
+
+            def Cube "Head" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </Turntable/TonearmBase/TonearmPivot/Head_mat>
+                double size = 1
+                float3 xformOp:scale = (0.03, 0.02, 0.03)
+                double3 xformOp:translate = (0, 0.025, 0.205)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Material "Head_mat"
+            {
+                token outputs:surface.connect = </Turntable/TonearmBase/TonearmPivot/Head_mat/Preview.outputs:surface>
+
+                def Shader "Preview"
+                {
+                    uniform token info:id = "UsdPreviewSurface"
+                    color3f inputs:diffuseColor = (0.15, 0.15, 0.16)
+                    float inputs:metallic = 0
+                    float inputs:roughness = 0.4
+                    token outputs:surface
+                }
+            }
+        }
+    }
+}
+

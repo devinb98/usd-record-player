@@ -1,0 +1,146 @@
+#usda 1.0
+(
+    defaultPrim = "Crate"
+    endTimeCode = 1
+    framesPerSecond = 24
+    metersPerUnit = 1
+    startTimeCode = 1
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Xform "Crate" (
+    kind = "component"
+)
+{
+    def Cube "Floor" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+        rel material:binding = </Crate/Floor_mat>
+        double size = 1
+        float3 xformOp:scale = (0.34, 0.02, 0.34)
+        double3 xformOp:translate = (0, 0.01, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Material "Floor_mat"
+    {
+        token outputs:surface.connect = </Crate/Floor_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.35, 0.24, 0.12)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.7
+            token outputs:surface
+        }
+    }
+
+    def Cube "WallN" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+        rel material:binding = </Crate/WallN_mat>
+        double size = 1
+        float3 xformOp:scale = (0.34, 0.05, 0.02)
+        double3 xformOp:translate = (0, 0.025, 0.16)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Material "WallN_mat"
+    {
+        token outputs:surface.connect = </Crate/WallN_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.35, 0.24, 0.12)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.7
+            token outputs:surface
+        }
+    }
+
+    def Cube "WallS" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+        rel material:binding = </Crate/WallS_mat>
+        double size = 1
+        float3 xformOp:scale = (0.34, 0.05, 0.02)
+        double3 xformOp:translate = (0, 0.025, -0.16)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Material "WallS_mat"
+    {
+        token outputs:surface.connect = </Crate/WallS_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.35, 0.24, 0.12)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.7
+            token outputs:surface
+        }
+    }
+
+    def Cube "WallE" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+        rel material:binding = </Crate/WallE_mat>
+        double size = 1
+        float3 xformOp:scale = (0.02, 0.05, 0.34)
+        double3 xformOp:translate = (0.16, 0.025, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Material "WallE_mat"
+    {
+        token outputs:surface.connect = </Crate/WallE_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.35, 0.24, 0.12)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.7
+            token outputs:surface
+        }
+    }
+
+    def Cube "WallW" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+        rel material:binding = </Crate/WallW_mat>
+        double size = 1
+        float3 xformOp:scale = (0.02, 0.05, 0.34)
+        double3 xformOp:translate = (-0.16, 0.025, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Material "WallW_mat"
+    {
+        token outputs:surface.connect = </Crate/WallW_mat/Preview.outputs:surface>
+
+        def Shader "Preview"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            color3f inputs:diffuseColor = (0.35, 0.24, 0.12)
+            float inputs:metallic = 0
+            float inputs:roughness = 0.7
+            token outputs:surface
+        }
+    }
+}
+
